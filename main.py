@@ -1,15 +1,13 @@
-# Import necessary libraries
-# from tensorflow.keras.datasets import fashion_mnist
 from tensorflow.keras.datasets import cifar10
 import matplotlib.pyplot as plt
 import numpy as np
-from src.utils import show_generator_results, get_fake_samples, get_real_samples, get_random_noise
+from src.utils import show_generator_results, get_fake_samples, get_real_samples, get_random_noise, plot_training_history
 from discriminator import Discriminator
 from generator import Generator
 from gan_assembler import assemble_model
 
 
-# Load Fashion MNIST dataset
+# Load CIFAR-10 dataset
 (trainX, trainY), (testX, testY) = cifar10.load_data()
 
 # Display shapes of training and testing data
@@ -26,16 +24,11 @@ for k in range(7):
         plt.axis('off')
 plt.show()
 
-
-# Displaying the unique classes in the training labels
 unique_classes = np.unique(trainY)
-print("Ten classes:", unique_classes)
 
 # Normalize pixel values to the range [-1, 1]
 trainX = [(image - 127.5) / 127.5 for image in trainX]
 testX = [(image - 127.5) / 127.5 for image in testX]
-
-#print(trainX.shape)
 
 # Reshape the data to match the input shape expected by the model
 trainX = np.reshape(trainX, (50000, 32, 32, 3))
@@ -54,9 +47,14 @@ ebgan = assemble_model(discriminator, generator)
 
 # Set hyperparameters
 epochs = 200
-batch_size = 256  # Increased batch size for faster training
+batch_size = 256
 steps = len(trainX) // batch_size
 noise_size = 100
+
+# Variables to store the loss and accuracy for plotting
+d_losses = []
+g_losses = []
+d_accs = []
 
 # Training loop
 for i in range(epochs):
@@ -87,8 +85,16 @@ for i in range(epochs):
         # Update Generator weights
         discriminator.network.trainable = False
         loss_g = ebgan.train_on_batch(gan_input, gan_output)
+        
+    # Store the losses and accuracies
+    d_losses.append(loss_d[0])
+    g_losses.append(loss_g)
+    d_accs.append(loss_d[1] * 100)
     # Display training progress every epoch
     print(f"Epoch: {i}, D-Loss: {loss_d[0]:.3f}, D-Acc: {loss_d[1]*100:.3f}, G-Loss: {loss_g:.3f}")
+    
+# Call the function to plot the training history
+plot_training_history(d_losses, g_losses, d_accs)
     
 # Generate and display unlimited samples using the generator network
 # This loop generates and shows generated images twice

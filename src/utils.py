@@ -48,3 +48,32 @@ def show_generator_results(generator_network, noise_size):
             axs[k][j].imshow((fake_samples[0][j] + 1) / 2)
             axs[k][j].axis('off')
     plt.show()
+    
+
+# Function to plot loss and accuracy
+def plot_training_history(d_losses, g_losses, d_accs):
+    epochs_range = range(len(d_losses))
+
+    # Create a new figure for plotting
+    plt.figure(figsize=(12, 6))
+
+    # Plot Discriminator Loss and Generator Loss
+    plt.subplot(1, 2, 1)
+    plt.plot(epochs_range, d_losses, label='Discriminator Loss', color='red')
+    plt.plot(epochs_range, g_losses, label='Generator Loss', color='blue')
+    plt.title('Losses Over Epochs')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.legend()
+
+    # Plot Discriminator Accuracy
+    plt.subplot(1, 2, 2)
+    plt.plot(epochs_range, d_accs, label='Discriminator Accuracy', color='green')
+    plt.title('Discriminator Accuracy Over Epochs')
+    plt.xlabel('Epochs')
+    plt.ylabel('Accuracy (%)')
+    plt.legend()
+
+    # Show the plot
+    plt.tight_layout()
+    plt.show()
